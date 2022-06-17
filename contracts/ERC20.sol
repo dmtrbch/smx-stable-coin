@@ -70,11 +70,18 @@ contract ERC20 {
   function _mint(address to, uint256 amount) internal {
     require(to != address(0), "ERC20: mint to the zero address");
 
-    totalSupply+= amount;
-    balanceOf[to] = amount;
+    totalSupply += amount;
+    balanceOf[to] += amount;
 
     emit Transfer(address(0), to, amount);
   }
 
-  
+  function _burn(address from, uint256 amount) internal {
+    require(from != address(0), "ERC20: burn to the zero address");
+
+    totalSupply -= amount;
+    balanceOf[from] -= amount;
+
+    emit Transfer(from, address(0), amount);
+  }
 }
