@@ -1,1 +1,2 @@
-##Stable Coin Implementation
+# Stable Coin Implementation #
+ 
