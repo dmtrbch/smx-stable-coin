@@ -74,6 +74,17 @@ contract("StableCoin", function() {
             TODO: Assign Stable Coin's contract totalSupply to result constant
             TODO: Create assertion (asser equal), compare result, with toWei(remainingStableCoinAmount)
            */
+          await stableCoinInstance.burn(
+            web3.utils.toWei(String(mintAmount - remainingStableCoinAmount), 'ether')
+          )
+ 
+          const result = await stableCoinInstance.totalSupply();
+
+          assert.equal(
+            String(result),
+            web3.utils.toWei(String(remainingStableCoinAmount), 'ether'),
+            "there is some issue"
+          )
         })
 
         it("Should prevent depositing collateral buffer below minimum", async () => {
@@ -111,11 +122,40 @@ contract("StableCoin", function() {
           /*
             TODO: beforeEach - figure out how to deposit collateral buffer
           */
+          let stableCoinCollateralBuffer;
+
+          beforeEach(async () => {
+            stableCoinCollateralBuffer = 0.5;
+
+            await stableCoinInstance.depositCollateralBuffer({
+              value: web3.utils.toWei(String(stableCoinCollateralBuffer), 'ether')
+            })
+          })
 
           it("Should allow withdrawing collateral buffer", async () => {
             /*
               TODO 
             */
+            
+            const newDepositorTottalSupply = stableCoinCollateralBuffer * ethUsdPrice;
+
+            const stableCoinCollaterBurnAmount = newDepositorTottalSupply * 0.2;
+
+            let depositorCoinAddress = await stableCoinInstance.getDepositorContractAddress();
+
+            let depostiorCoinInstance = await DepositorCoin.at(String(depositorCoinAddress));
+
+            await stableCoinInstance.withdrawCollateralBuffer(
+              web3.utils.toWei(String(stableCoinCollaterBurnAmount), 'ether')
+            )
+
+            const result = await depostiorCoinInstance.totalSupply();
+
+            assert.equal(
+              String(result),
+              web3.utils.toWei(String(newDepositorTottalSupply - stableCoinCollaterBurnAmount), 'ether'),
+              "there is some issue"
+            )
           })
         })
       })
